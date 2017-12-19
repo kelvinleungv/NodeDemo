@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>首页</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/jumbotron.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  </head>
+  <style>
+    #err1,#err2{
+      display: none;
+    }
+  </style>
+  <body>
+    <!-- 导入include模板 -->
+    <% include header.ejs %>
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <%if(!login){%>
+        <!-- 没有登录显示登录提示 -->
+        <div class="container"> 
+          <div class="row">
+            <div class="col-lg-6">
+                <h1>欢迎！</h1>
+                <p>登录查看惊喜哦~</p>
+            </div>
+            <div class="col-lg-6" style="text-align:center;">
+                <h2 >已有账号登录！</h2>
+                <form class="form-horizontal">
+                    <div class="form-group">
+                      <label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+                      <div class="col-lg-10">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="username">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="inputPassword3" class="col-sm-2 control-label">密码</label>
+                      <div class="col-lg-10">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      
+                        <div class="navbar-form" >
+                            <input type="button" class="btn btn-success" id="denglu" value="登录"/>
+                        </div>
+      
+                    </div>
+                  </form>
+                  <div class="alert alert-danger" role="alert" id="err1">
+                      <a href="#" class="alert-link">用户名不存在</a>
+                  </div>
+                  <div class="alert alert-danger" role="alert" id="err2">
+                      <a href="#" class="alert-link">密码错误</a>
+                  </div>
+            </div>
+
+          </div>  
+         </div>
+      <%}else{%>
+        <div class="container"> 
+          <div class="row">
+            <div class="col-lg-1">
+                <a href="/setavatar"> 
+                  <% if( login == "1" ){%><img src="/avatar/<%=avatar%>" alt="头像" width="200" height="200"/><% } %>
+                </a>
+            </div>
+            <div class="col-lg-6 col-lg-offset-2">
+                <p style="font-size:20px;"><%=username%></p>
+                <textarea name="neirong" id="content" cols="100" rows="6" ></textarea>
+                <input type="button" class="btn btn-success" id="fabiao" value="发表说说"/>
+            </div>
+          </div>
+         </div>
+      <%}%>
+    </div>
+    <div class="container">
+      <%if(!login){%>
+        <div class="row"><h2>只能登录才能看到这些秘密哦~~~~</h2></div>
+      <%}else{%>
+
+        <!-- 分页条 -->
+        <nav>
+          <ul class="pagination">
+          </ul>
+        </nav>
+        <script>
+          //分页条的ajax
+          $.get('/getshuoshuoamount',function(result){
+            //amount是多少条说说
+              var amount = parseInt(result);
+              //  alert(amount);
+              //总页数
+              pageamount = Math.ceil(amount/6);
+              for(var i=0;i<pageamount;i++){
+                $('.pagination').append("<li><a href='javascript:;'>"+ i +"</a></li>");
+              }
+              $('.pagination li:first').addClass('active');
+              $('.pagination li').click(function(){
+                var page = $(this).index();
+                getPage(page);
+                $(this).addClass('active').siblings().removeClass('active');
+              })
+          })
+        </script>
+
+
+        <div class="row" id="quanbushuoshuo" style="height:500px;">
+            <!-- 所以用到前端引擎undersocre模板来做-->
+        </div>
+      <%}%>
+    
+      
+    </div> <!-- /container -->
+   
+<script type="text/javascript" src="js/underscore-min.js"></script>
+
+<script type="text/template" id="moban">
+  <div class="col-md-4" style="height:300px;">
+      <h3><img src="/avatar/{{=avatar}}" alt="头像" witdh="100" height="100"/>{{=username}}说:</h3>
+      <p>{{=content}}</p>
+      <p>{{=datetime}}</p>
+      <p><a class="btn btn-default" href="#" role="button">查看详细 &raquo;</a></p>
+  </div>
+</script>
+
+
+
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/js/ie10-viewport-bug-workaround.js"></script>
+<script>
+
+
+   //得到模板，弄成模板函数
+   var compiled = _.template($("#moban").html());
+   getPage(0);
+   //请求分页的说说全部信息
+   function getPage(page){
+    $('#quanbushuoshuo').html('');
+    $.ajax({
+     "url":'/getallshuoshuo?page='+page,
+     "type":"get",
+     "success":function(result){
+        //console.log(result); result是一个数组
+        iterator(0);
+        //迭代器  为了避开chrome
+        function iterator(i){
+          if(i==result.length){
+            //这里写请求完毕之后的事情
+           return;
+           }
+           //请求单个人的说说信息
+           $.get('/getuserinfo?username=' + result[i].username ,function(result2){
+              //修改字典,添加头像字典
+              result[i].avatar = result2.avatar;
+              //组装模板
+              var htmlstring =compiled(result[i]);
+              //添加Dom
+              $('#quanbushuoshuo').append($(htmlstring));
+              iterator(i+1);
+           })
+        }
+        console.log(result);
+      }
+    })
+   }
+   
+   
+
+  $('input').focus(function(){
+    $('.alert').fadeOut();
+  })
+  $('#denglu').click(function(){
+    $.post('/dologin',
+      {
+        'username' : $('#username').val(),
+        'password' : $('#password').val()
+      }
+    ,function(result){
+      if(result === '1'){
+          window.location='/';
+      }else if(result ==='-1'){
+       $('#err1').fadeIn();
+      }else if(result === '-2'){
+        $('#err2').fadeIn();
+      }else if(result === '-3'){
+        alert('服务器延迟');
+         //服务器延迟
+      }
+    })
+  })
+  //点击发布按钮之后
+  $('#fabiao').click(function(){
+    $.post('/post',
+      {
+        'content':$('#content').val()
+      }
+    ,function(result){
+      if(result === '1'){
+         alert('发布成功');
+      }else if(result ==='-1'){
+       $('#err1').fadeIn();
+      }else if(result === '-3'){
+        alert('服务器延迟，发布失败');
+         //服务器延迟
+      }
+    })
+  })  
+</script>
+</body>
+</html>

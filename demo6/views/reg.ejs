@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>注册</title>
+</head>
+<body>
+    <form>
+        <p>
+            登录名 <input type="text" name="username" id="username"/>
+        </p>
+        <p>
+            密码： <input type="password" name="password" id="password"/>
+        </p>
+        <p>
+            <input type="button" value="注册" id="reg"/>
+        </p>
+    </form>
+</body>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script>
+$(function(){
+    //用ajax提交表单
+    $('#reg').click(function(){
+        //第一个参数表示post到哪里
+        $.post('doreg',
+            {
+                'username':$('#username').val(),
+                'password':$('#password').val()
+            },
+            function(results){  
+                //这个就接受ajax回调的过来的那个result
+                if(results === '1'){
+                    alert('注册成功');
+                }else{
+                    alert('注册失败');
+                }
+            
+        });
+    })
+})
+</script>
+</html>

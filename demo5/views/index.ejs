@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>留言本</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+      #danger,#success{
+        display: none;
+      }
+      .liuyankuai{
+        padding:10px 0;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+<div>       
+    <h1>我的留言本</h1>
+    <div class="container">
+      <div class="row">
+            <form class="form-horizontal col-sm-6">
+                    <div class="form-group">
+                      <label for="inputEmail3" class="col-sm-2 control-label">姓名:</label>
+                      <div class="col-sm-10">
+                        <input type="email" class="form-control" id="xingming" name="xingming" placeholder="姓名">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="inputPassword3" class="col-sm-2 control-label">留言</label>
+                      <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" name="liuyan" id="liuyan"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="tijiao" class="btn btn-success">Sign in</button>
+                      </div>
+                    </div>
+                    <div class="alert alert-success" role="alert" id="success">
+                            <a href="#" class="alert-link">表单已经成功提交</a>
+                     </div>
+                     <div class="alert alert-danger" role="alert" id="danger">
+                            <a href="#" class="alert-link">表单提交失败</a>
+                     </div>
+            </form>
+          </div>
+          <ul class="pagination">
+              <!-- class="anniu"是给li添加监听 -->
+
+              <!-- 用后台模板ejs -->
+              <%for (var i=1;i<=pageamount;i++){%>
+              <li  class="anniu" data-page="<%=i%>"><a href="#"><%=i%></a></li>
+              <%}%>
+            </ul>
+
+
+            <div id="quanbuliuyan">
+                <!-- 这里用underscore前端模板引擎渲染 -->
+            </div>
+   
+  </div>
+</div> 
+</body>
+<!-- 留言的模板 --> 
+<script type="text/template" id="moban">
+     <div class="liuyankuai">
+        <p>【姓名】:{{=xingming}}</p>
+        <p>【留言】:{{=liuyan}}</p>
+        <p>【时间】:{{=shijian}}</p>
+        <p><a href="/shanchu?id={{=id}}" class="shanchu">删除</a></p>
+     </div>       
+</script>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/underscore-min.js"></script>
+<script>
+    //给第一个页面，补一个active
+    $('.anniu:first').addClass('active');
+    //给所有页码按钮，添加监听
+    $('.anniu').click(function(){
+      var page =parseInt($(this).attr('data-page'));
+      nowpage = page;
+      //重新发起请求,请求后台数据库评论的数据
+      getData(page);
+
+      $(this).addClass("active").siblings().removeClass("active");
+    })
+
+
+//默认开始请求1页数据
+getData(1);
+
+//可以把ajax请求封装成函数，参数传page
+    //ajax请求数据
+    function getData(page){
+      //page从0开始算
+        $.get("/du?page="+ (page - 1) ,function(result){
+        //这里接受是result.但是这个json里面有一个key叫做result
+        //得到模板，弄成模板函数
+        var compiled = _.template($("#moban").html());
+        //清空全部留言中的所有节点
+        $('#quanbuliuyan').html("");
+        //设置模板信息 
+        for(var i=0;i<result.result.length;i++){
+          //数据绑定
+          var html = compiled(
+            {liuyan:result.result[i].liuyan,
+              xingming:result.result[i].xingming,
+              shijian:result.result[i].shijian,
+              id:result.result[i]._id  //记得是_（下划线）id
+            });
+          //dom操作。添加节点
+          $('#quanbuliuyan').append($(html));
+          }
+       })
+    }
+   
+
+
+    //ajax提交表单
+    $('#tijiao').click(function(){
+      $('#danger').hide();
+      $('#success').hide();
+        $.post('/tijiao',{
+        'xingming':$('#xingming').val(),
+        'liuyan':$('#liuyan').val()
+         },function(result){
+                // alert(result);
+                if(result == -1){
+                    $('#danger').show();
+                }else if(result == 1){
+                  //提交成功
+                  $('#success').fadeIn();
+                  //数据库存储了，当时当前页面无法显示，这是因为需要刷新
+                  //才能用ajax从/du中得到新的，所以我们先用一个假盒子凑出来.
+                  var compiled = _.template($("#moban").html());
+                  var html = compiled({liuyan:$('#liuyan').val(),xingming:$('#xingming').val(),shijian:new Date()});
+                  $(html).insertBefore($('#quanbuliuyan'));
+                }
+        });
+    })
+
+</script>
+</html>

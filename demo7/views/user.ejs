@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title><%=user%>的个人主页</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/css/jumbotron.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  </head>
+  <style>
+  .one{
+      border:1px solid #ccc;
+      padding: 5px;
+      margin-top: 10px;
+      height: 80px;
+  }
+  </style>
+  <body>
+    <!-- 导入include模板 -->
+    <% include header.ejs %>
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+        <div class="container">
+                <img src="/avatar/<%=avatar%>" alt="头像" width="250" height="250"/>
+                <span style="font-size:24px;margin-left:20px;"><%=user%>的个人主页</span>
+                <h2>曾经发表的说说</h2>
+                <div class="row col-lg-6">
+                    <%for(var i=0;i<cirenshuoshuo.length;i++){%>
+                         <div class="one">
+                            <p><%=cirenshuoshuo[i].content;%></p>
+                            <p><%=cirenshuoshuo[i].datetime;%></p>
+                         </div>
+                    <%}%>
+                </div>
+        </div> <!-- /container -->
+    
+   
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+</body>
+</html>
